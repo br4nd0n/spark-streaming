@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>brandon-example</groupId>
+    <artifactId>spark-example</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <properties>
+        <scala.major.version>2</scala.major.version>
+        <scala.minor.version>10</scala.minor.version>
+        <scala.binary.version>2.10</scala.binary.version>
+        <scala.maintenance.version>4</scala.maintenance.version>
+        <scala.major.minor.version>${scala.major.version}.${scala.minor.version}</scala.major.minor.version>
+        <scala-library.version>${scala.major.minor.version}.${scala.maintenance.version}</scala-library.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_${scala.major.minor.version}</artifactId>
+            <version>1.6.1</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming_${scala.major.minor.version}</artifactId>
+            <version>1.6.1</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
+</project>
