@@ -1,2 +1,2 @@
 # spark-streaming
-Example streaming app using Spark
+Example streaming app using Spark w/ direct instrumentation / visualization
