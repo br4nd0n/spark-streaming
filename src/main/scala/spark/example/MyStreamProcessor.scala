@@ -11,7 +11,7 @@ object MyStreamProcessor {
 
   val gson = new Gson()
 
-  def processStreamCountWordLength(stream: ReceiverInputDStream[String]): Unit = {
+  def processStreamCountWordLength(stream: DStream[String]): Unit = {
     val wordLengths: DStream[(Int, Int)] = stream.map(word => (word.length, 1))
 
     val countsByLength: DStream[(Int, Int)] = wordLengths.reduceByKey((w1, w2) => w1 + w2)
@@ -27,8 +27,7 @@ object MyStreamProcessor {
     })
   }
 
-  def processStream(stream: ReceiverInputDStream[(String, String)]): Unit = {
-
+  def processStream(stream: DStream[String]): Unit = {
     //DStream is just a sequence of RDD's
     stream.foreachRDD(rdd => {
       //This function executed on the driver
@@ -38,9 +37,9 @@ object MyStreamProcessor {
 
         //RDD partitions are processed in parallel, but elements in a single partition are processed serially
         partition.foreach(message => {
-          println("Received message: " + message._2)
+          println("Received message: " + message)
           JedisProvider.exec(jedis => {
-            jedis.publish("raw-messages", message._2)
+            jedis.publish("raw-messages", message)
           })
         })
 

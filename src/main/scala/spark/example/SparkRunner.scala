@@ -19,7 +19,7 @@ import redis.receiver._
 object SparkRunner {
 
   val tcpPort = 1337
-  val batchDurationMilliseconds = new Duration(1 * 1000)
+  val batchDurationMilliseconds = new Duration(3 * 1000)
   val generateData = true
   val messageSet = "words"
 
@@ -32,8 +32,10 @@ object SparkRunner {
     val ssc: StreamingContext = createStreamingContext()
     val stream: ReceiverInputDStream[(String, String)] = createStream(ssc)
 
-    MyStreamProcessor.processStream(stream)
-    //processStreamCountWordLength(stream)
+    val streamValues = stream.map(kv => kv._2)
+
+    //MyStreamProcessor.processStream(stream)
+    MyStreamProcessor.processStreamCountWordLength(streamValues)
     println("Transformation sequence created")
 
     ssc.start()
