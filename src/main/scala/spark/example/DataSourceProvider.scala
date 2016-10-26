@@ -21,14 +21,15 @@ object DataSourceProvider {
     new Thread(new Runnable {
       def run(): Unit = {
         var i = 0
-        while (i < words.length) {
-          val word = words(i)
+        val r = scala.util.Random
+        while (true) {
+          val word = words(i % words.length)
           JedisProvider.exec(jedis => {
             jedis.sadd(messageSet, word)
           })
           i += 1
           try {
-            Thread.sleep(300)
+            Thread.sleep(r.nextInt(300))
           } catch {
             case e: InterruptedException => {}
           }
