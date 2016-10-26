@@ -5,9 +5,6 @@ package spark.example
  */
 object DataSourceProvider {
 
-  import java.io._
-  import java.net._
-
   //Read the file into memory and convert into an array of words, with punctuation removed and all-lowercase
   val stream = getClass().getResourceAsStream("/hitchhikers.txt")
   val corpus = scala.io.Source.fromInputStream(stream).mkString
@@ -36,47 +33,6 @@ object DataSourceProvider {
             case e: InterruptedException => {}
           }
         }
-      }
-    }).start
-  }
-
-  def initTCPDataStream(port: Int) = {
-    new Thread(new Runnable {
-      def run(): Unit = {
-        println(s"Creating server on port $port")
-        val server = new ServerSocket(port)
-
-        while (true) {
-          println(s"Server waiting. Bound? ${server.isBound} ${server.getLocalPort}")
-          val s: Socket = server.accept()
-
-          println(s.getRemoteSocketAddress)
-          println("Client connected")
-          handleClient(s)
-        }
-      }
-    }).start
-    println("TCP data stream initialized")
-  }
-
-  def handleClient(s: Socket): Unit = {
-    new Thread(new Runnable {
-      def run(): Unit = {
-        var i = 0
-        val out = new PrintStream(s.getOutputStream())
-        while (i < words.length && s.isConnected) {
-          val word = words(i)
-          //println(s"Sending $word")
-          out.println(word) //for random text: UUID.randomUUID().toString.substring(0, 6)
-          out.flush()
-          i += 1
-          try {
-            Thread.sleep(300)
-          } catch {
-            case e: InterruptedException => {}
-          }
-        }
-        //s.close()
       }
     }).start
   }
