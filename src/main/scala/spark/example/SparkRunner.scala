@@ -1,11 +1,10 @@
 
 package spark.example
 
-import java.util.UUID
-
 import org.apache.spark.SparkConf
-import org.apache.spark.streaming.dstream.{DStream, ReceiverInputDStream}
+import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.apache.spark.streaming.{Duration, StreamingContext}
+import redis.receiver._
 
 /**
  * Example program to consume and process streaming data with Spark Streaming
@@ -13,72 +12,45 @@ import org.apache.spark.streaming.{Duration, StreamingContext}
  * See http://spark.apache.org/docs/latest/streaming-programming-guide.html for more info
  *
  * Use "nc -lk 1337" to create local TCP server
+ *
+ * http://localhost:4040/ to see Spark dashboard
  */
 
 object SparkRunner {
 
   val tcpPort = 1337
-  val batchDurationMilliseconds = new Duration(3 * 1000)
+  val batchDurationMilliseconds = new Duration(1 * 1000)
+  val generateData = true
+  val messageSet = "words"
 
   def main(args: Array[String]) = {
     println("Setting up the Spark app")
 
-    TCPDataSource.initDataStream(tcpPort)
+    if (generateData)
+      DataSourceProvider.initRedisDataStream(messageSet)
 
     val ssc: StreamingContext = createStreamingContext()
-    val stream: ReceiverInputDStream[String] = createStream(ssc)
+    val stream: ReceiverInputDStream[(String, String)] = createStream(ssc)
 
-    processStream(stream)
+    MyStreamProcessor.processStream(stream)
     //processStreamCountWordLength(stream)
-
     println("Transformation sequence created")
+
     ssc.start()
     ssc.awaitTermination()
   }
 
-  def processStreamCountWordLength(stream: ReceiverInputDStream[String]): Unit = {
-    val wordLengths: DStream[(Int, Int)] = stream.map(word => (word.length, 1))
-
-    val countsByLength: DStream[(Int, Int)] = wordLengths.reduceByKey((w1, w2) => w1 + w2)
-
-    //dstream.foreachRDD triggers actual execution
-    countsByLength.foreachRDD(rdd => {
-      println("new RDD")
-      rdd.collect().foreach(wordLengthCount => {
-        val length = wordLengthCount._1
-        val count = wordLengthCount._2
-        println(s"$count words with length $length observed")
-      })
-    })
-  }
-
-  def processStream(stream: ReceiverInputDStream[String]): Unit = {
-
-    //DStream is just a sequence of RDD's
-    stream.foreachRDD(rdd => {
-      //This function executed on the driver
-
-      rdd.foreachPartition(partition => {
-        //This function executed on the executor(s)
-
-        //RDD partitions are processed in parallel, but elements in a single partition are processed serially
-        partition.foreach(message => {
-          println("Received message: " + message)
-        })
-
-      })
-
-    })
-  }
-
-  def createStream(ssc: StreamingContext): ReceiverInputDStream[String] = {
-    ssc.socketTextStream("localhost", tcpPort)
+  def createStream(ssc: StreamingContext): ReceiverInputDStream[(String, String)] = {
+    //ssc.socketTextStream("localhost", tcpPort)
+    val clusterParams = Map("host" -> "localhost", "port" -> "6379", "cluster" -> "false", "timeout" -> "0", "struct" -> "set")
+    val keySet = Set(messageSet)
+    new RedisReceiverInputDStream(ssc, clusterParams, keySet)
   }
 
   def createStreamingContext(): StreamingContext = {
     val sparkConf = new SparkConf().setAppName("streaming-example")
     sparkConf.setMaster("local[*]")
-    sparkConf.set("spark.default.parallelism", Runtime.getRuntime.availableProcessors.toString())
+    //sparkConf.set("spark.default.parallelism", Runtime.getRuntime.availableProcessors.toString())
     new StreamingContext(sparkConf, batchDurationMilliseconds)
   }
 }

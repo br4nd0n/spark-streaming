@@ -9,8 +9,8 @@
     <version>1.0-SNAPSHOT</version>
     <properties>
         <scala.major.version>2</scala.major.version>
-        <scala.minor.version>10</scala.minor.version>
-        <scala.binary.version>2.10</scala.binary.version>
+        <scala.minor.version>11</scala.minor.version>
+        <scala.binary.version>2.11</scala.binary.version>
         <scala.maintenance.version>4</scala.maintenance.version>
         <scala.major.minor.version>${scala.major.version}.${scala.minor.version}</scala.major.minor.version>
         <scala-library.version>${scala.major.minor.version}.${scala.maintenance.version}</scala-library.version>
@@ -28,6 +28,18 @@
             <artifactId>spark-streaming_${scala.major.minor.version}</artifactId>
             <version>1.6.1</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.8.1</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.3.1</version>
         </dependency>
     </dependencies>
 </project>
