@@ -6,6 +6,14 @@ import java.util.Date
 
 /**
  * Created by brobrien on 10/26/16.
+ *
+ * Redis streams produced:
+ *
+ * stream-transitions
+ * summary-metrics
+ * detail-metrics
+ * raw-messages
+ * 
  */
 object MyStreamProcessor {
 
